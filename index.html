@@ -280,18 +280,30 @@
 
       let popupTimer = null;
 
+      // ---------- ADDED: sync caption order to noCount (and loop) ----------
+      // We show ONE popup per actual "moveNo()" call, even if multiple events fire.
+      let lastSeenNoCountForPopup = -1;
+
       function showNoPopup() {
+        // If moveNo hasn't incremented noCount yet, or if this is a duplicate event, do nothing.
+        if (typeof noCount === "undefined") return;
+        if (noCount === lastSeenNoCountForPopup) return;
+        lastSeenNoCountForPopup = noCount;
+
         const popup = document.getElementById("noPopup");
         const img = document.getElementById("noPopupImg");
         const cap = document.getElementById("noPopupCaption");
 
         const randomImg =
           popupImages[Math.floor(Math.random() * popupImages.length)];
-        const randomCap =
-          popupCaptions[Math.floor(Math.random() * popupCaptions.length)];
+
+        // Caption index synced to noCount (loops when it reaches the end)
+        const captionIndex =
+          (noCount - 1 + popupCaptions.length) % popupCaptions.length;
+        const orderedCap = popupCaptions[captionIndex];
 
         img.src = randomImg;
-        cap.textContent = randomCap;
+        cap.textContent = orderedCap;
 
         popup.classList.remove("show");
         void popup.offsetWidth;
@@ -300,13 +312,14 @@
         if (popupTimer) clearTimeout(popupTimer);
         popupTimer = setTimeout(() => {
           popup.classList.remove("show");
-        }, 5000);
+        }, 3000);
       }
 
       window.addEventListener("DOMContentLoaded", () => {
         const noBtn = document.getElementById("no");
         if (!noBtn) return;
 
+        // Keep your existing triggers — showNoPopup will dedupe using noCount.
         noBtn.addEventListener("mouseover", showNoPopup);
         noBtn.addEventListener("touchstart", showNoPopup, { passive: true });
         noBtn.addEventListener("click", showNoPopup);
