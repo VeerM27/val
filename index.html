@@ -274,18 +274,17 @@
         "Excuse me??? 😭",
         "Nice try cow 😈",
         "Maybe this will change your mind? 😩",
-        "This is not nice of you 🚔",
+        "Why you being means 🚔",
         "brev click YES already 💖",
       ];
 
       let popupTimer = null;
 
-      // ---------- ADDED: sync caption order to noCount (and loop) ----------
-      // We show ONE popup per actual "moveNo()" call, even if multiple events fire.
+      // ---------- ADDED: sync popup to noCount (and loop) ----------
+      // Show ONE popup per actual "moveNo()" call, even if multiple events fire.
       let lastSeenNoCountForPopup = -1;
 
       function showNoPopup() {
-        // If moveNo hasn't incremented noCount yet, or if this is a duplicate event, do nothing.
         if (typeof noCount === "undefined") return;
         if (noCount === lastSeenNoCountForPopup) return;
         lastSeenNoCountForPopup = noCount;
@@ -294,15 +293,17 @@
         const img = document.getElementById("noPopupImg");
         const cap = document.getElementById("noPopupCaption");
 
-        const randomImg =
-          popupImages[Math.floor(Math.random() * popupImages.length)];
+        // Image index synced to noCount (loops)
+        const imageIndex =
+          (noCount - 1 + popupImages.length) % popupImages.length;
+        const orderedImg = popupImages[imageIndex];
 
-        // Caption index synced to noCount (loops when it reaches the end)
+        // Caption index synced to noCount (loops)
         const captionIndex =
           (noCount - 1 + popupCaptions.length) % popupCaptions.length;
         const orderedCap = popupCaptions[captionIndex];
 
-        img.src = randomImg;
+        img.src = orderedImg;
         cap.textContent = orderedCap;
 
         popup.classList.remove("show");
@@ -319,7 +320,7 @@
         const noBtn = document.getElementById("no");
         if (!noBtn) return;
 
-        // Keep your existing triggers — showNoPopup will dedupe using noCount.
+        // Keep your existing triggers — showNoPopup dedupes using noCount.
         noBtn.addEventListener("mouseover", showNoPopup);
         noBtn.addEventListener("touchstart", showNoPopup, { passive: true });
         noBtn.addEventListener("click", showNoPopup);
