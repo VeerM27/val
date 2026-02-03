@@ -83,7 +83,7 @@
         left: 55%;
         top: 40%;
         transform: translate(-50%, -50%);
-        margin-top: 0; /* avoid inherited margin positioning issues */
+        margin-top: 0;
       }
 
       .love {
@@ -92,6 +92,53 @@
         font-size: 22px;
         color: #ff4d6d;
         line-height: 1.25;
+      }
+
+      /* ---------- ADDED: NO POPUP IMAGE FEATURE ---------- */
+      .no-popup {
+        position: fixed;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(320px, 88vw);
+        background: rgba(255, 255, 255, 0.96);
+        border-radius: 18px;
+        padding: 12px;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+        display: none;
+        z-index: 9999;
+        backdrop-filter: blur(6px);
+      }
+
+      .no-popup.show {
+        display: block;
+        animation: popIn 180ms ease-out;
+      }
+
+      .no-popup img {
+        width: 100%;
+        height: auto;
+        border-radius: 14px;
+        display: block;
+      }
+
+      .no-popup .caption {
+        margin-top: 10px;
+        font-size: 15px;
+        color: #ff4d6d;
+        line-height: 1.25;
+        text-align: center;
+      }
+
+      @keyframes popIn {
+        from {
+          transform: translateX(-50%) scale(0.92);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(-50%) scale(1);
+          opacity: 1;
+        }
       }
     </style>
   </head>
@@ -173,29 +220,97 @@
       function moveNo() {
         const btn = document.getElementById("no");
 
-        // Increase count
         noCount++;
 
-        // Update the button text (caps at last phrase)
         const phraseIndex = Math.min(noCount, noPhrases.length - 1);
         btn.textContent = noPhrases[phraseIndex];
 
-        // More chaos each time (capped)
         const chaos = Math.min(1 + noCount * 0.2, 3.2);
 
-        // Random jump within a bigger range as it panics
         const x = (Math.random() * 240 - 120) * chaos;
         const y = (Math.random() * 120 - 60) * chaos;
 
-        // Faster movement over time
-        btn.style.transition = `transform ${Math.max(0.08, 0.18 - noCount * 0.01)}s ease`;
-        btn.style.transform = `translate(${x}px, ${y}px) rotate(${(Math.random() * 10 - 5) * chaos}deg)`;
+        btn.style.transition = `transform ${Math.max(
+          0.08,
+          0.18 - noCount * 0.01,
+        )}s ease`;
+        btn.style.transform = `translate(${x}px, ${y}px) rotate(${
+          (Math.random() * 10 - 5) * chaos
+        }deg)`;
 
-        // After a few tries, make it slightly smaller (panic vibe)
         if (noCount >= 4) {
-          btn.style.transform += ` scale(${Math.max(0.85, 1 - noCount * 0.03)})`;
+          btn.style.transform += ` scale(${Math.max(
+            0.85,
+            1 - noCount * 0.03,
+          )})`;
         }
       }
+    </script>
+
+    <!-- ---------- ADDED POPUP HTML ---------- -->
+    <div class="no-popup" id="noPopup">
+      <img id="noPopupImg" src="" alt="popup" />
+      <div class="caption" id="noPopupCaption"></div>
+    </div>
+
+    <!-- ---------- ADDED POPUP SCRIPT ---------- -->
+    <script>
+      const popupImages = [
+        "popups/1.JPG",
+        "popups/2.png",
+        "popups/3.JPG",
+        "popups/4.JPG",
+        "popups/5.JPG",
+        "popups/a.png",
+        "popups/b.png",
+        "popups/c.png",
+        "popups/d.png",
+        "popups/e.png",
+        "popups/f.png",
+      ];
+
+      const popupCaptions = [
+        "Wrong option detected 🚫",
+        "Excuse me??? 😭",
+        "Nice try 😈",
+        "You’re really testing me 😩",
+        "This button is illegal 🚔",
+        "Just click YES already 💖",
+      ];
+
+      let popupTimer = null;
+
+      function showNoPopup() {
+        const popup = document.getElementById("noPopup");
+        const img = document.getElementById("noPopupImg");
+        const cap = document.getElementById("noPopupCaption");
+
+        const randomImg =
+          popupImages[Math.floor(Math.random() * popupImages.length)];
+        const randomCap =
+          popupCaptions[Math.floor(Math.random() * popupCaptions.length)];
+
+        img.src = randomImg;
+        cap.textContent = randomCap;
+
+        popup.classList.remove("show");
+        void popup.offsetWidth;
+        popup.classList.add("show");
+
+        if (popupTimer) clearTimeout(popupTimer);
+        popupTimer = setTimeout(() => {
+          popup.classList.remove("show");
+        }, 1800);
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const noBtn = document.getElementById("no");
+        if (!noBtn) return;
+
+        noBtn.addEventListener("mouseover", showNoPopup);
+        noBtn.addEventListener("touchstart", showNoPopup, { passive: true });
+        noBtn.addEventListener("click", showNoPopup);
+      });
     </script>
   </body>
 </html>
